@@ -237,24 +237,3 @@ select * from STOCK
 
 
 
-
-
-select 
-	fact_cliente,
-	c.clie_razon_social,
-	i.item_producto,
-	p.prod_detalle,
-	sum(i.item_cantidad) as cant_comprado
-from Factura f join Cliente c  on f.fact_cliente = c.clie_codigo 
-	           join Item_Factura i on   -- por que joinea con la PK de los items 
-	           			i.item_tipo = f.fact_tipo and 
-	           			i.item_sucursal = f.fact_sucursal and 
-	           			i.item_numero = f.fact_numero 
-	           join Producto p on p.prod_codigo = i.item_producto 
-where 
-	year(fact_fecha) = 2011
-group by 
-	fact_cliente,
-	c.clie_razon_social,
-	i.item_producto,
-	p.prod_detalle
