@@ -1,5 +1,8 @@
 ESTOS SON LOS EJERICICOS CORRESPONDIENTE AL 2D0 CUATRIMESTRE
 DE GDD
 - exitira 2 carpetas 
-SQL es SQL que val del ejercicio 1 - 18 (creo - a actualizar)
+SQL es SQL que val del ejercicio 1 - 35 (creo - a actualizar)
+-- HASTA EL MOMENTO HICE HASTA EL 28 NO INCLUSIVE
+
 T-SQL es Transaction SQL 
+-- SOLO HICE EJERCICIO 1
