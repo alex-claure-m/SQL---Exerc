@@ -1,0 +1,19 @@
+La diferencia más general entre procedimientos y funciones es que se invocan de manera diferente y para diferentes propósitos:
+
+Un procedimiento no devuelve un valor. En su lugar, se invoca con una instrucción CALL para realizar una operación, como modificar una tabla o procesar registros recuperados.
+Una función se invoca dentro de una expresión y devuelve un único valor directamente a la persona que llama para que se utilice en la expresión.
+No puede invocar una función con una declaración CALL, ni puede invocar un procedimiento en una expresión.
+
+
+La sintaxis para la creación de rutinas difiere un poco para los procedimientos y funciones:
+
+Los parámetros del procedimiento se pueden definir como de solo entrada, solo de salida o ambos. Esto significa que un procedimiento puede devolver valores a la persona que llama mediante el uso de parámetros de salida. Se puede acceder a estos valores en sentencias que siguen a la sentencia CALL. Las funciones solo tienen parámetros de entrada. Como resultado, aunque tanto los procedimientos como las funciones pueden tener parámetros, la declaración de parámetros del procedimiento difiere de la de las funciones.
+Las funciones devuelven valor, por lo que debe haber una cláusula RETURNS en una definición de función para indicar el tipo de datos del valor devuelto. Además, debe haber al menos una declaración RETURN dentro del cuerpo de la función para devolver un valor a la persona que llama. RETURN y RETURN no aparecen en las definiciones de procedimiento.
+
+Para invocar un procedimiento almacenado, use la instrucción CALL. Para invocar una función almacenada, haga referencia a ella en una expresión. La función devuelve un valor durante la evaluación de la expresión.
+
+Un procedimiento se invoca mediante una instrucción CALL y solo puede devolver valores mediante variables de salida. Se puede llamar a una función desde dentro de una declaración como cualquier otra función (es decir, invocando el nombre de la función) y puede devolver un valor escalar.
+
+Especificar un parámetro como IN, OUT o INOUT solo es válido para un PROCEDIMIENTO. Para una FUNCIÓN, los parámetros siempre se consideran parámetros IN.
+
+Si no se da ninguna palabra clave antes del nombre de un parámetro, es un parámetro IN por defecto. Los parámetros para funciones almacenadas no están precedidos por IN, OUT o INOUT. Todos los parámetros de función se tratan como parámetros IN.
