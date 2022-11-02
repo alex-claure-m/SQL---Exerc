@@ -24,7 +24,97 @@ GO
 CREATE PROCEDURE compuesto_en_factura (@productoCodigo CHAR(8), @componente CHAR(8), @nroFactura CHAR(8))
 
 
+ -- ========================== HECHO PÓR EL PROFE =====================================
 
+ SELECT i.item_tipo, i.item_sucursal, i.item_numero, c.comp_producto 
+FROM Composicion C
+INNER JOIN Item_Factura i
+ON C.comp_componente = i.item_producto 
+WHERE C.comp_cantidad = i.item_cantidad 
+GROUP BY i.item_tipo, i.item_sucursal, i.item_numero, c.comp_producto
+HAVING COUNT(*) = (select count(*) from Composicion c2 where c.comp_producto = c2.comp_producto )
+ORDER BY i.item_tipo, i.item_sucursal, i.item_numero 
+
+
+
+CREATE PROCEDURE pr_ejercicio6Tsql AS 
+BEGIN
+
+
+-- cursor que identifica los conjuntos de registros a modificar
+-- crear 2 tablas temporales que al leer el cursor las llenamos con las modificaciones a realizar
+-- insert del nuevo item compuesto, delete de los items que son componentes
+-- al finalizar el cursos, en una unica transaccion (ejecutasmos las 2 tablas temporales)
+-- Finaliza
+
+CREATE TABLE #filasBorrar
+	(tipo CHAR(1),
+	 sucursal CHAR(4),
+	 numero CHAR(8),
+	 producto CHAR(8))
+
+CREATE TABLE #filasInsertar
+	(tipo CHAR(1),
+	 sucursal CHAR(4),
+	 numero CHAR(8),
+	 producto CHAR(8),
+	 precio DECIMAL(12,2))
+
+	DECLARE @tipo CHAR(1), @sucursal CHAR(4), @numero CHAR(8), @producto CHAR(8), @precio DECIMAL(12,2)
+
+	DECLARE c_composicion CURSOR FOR 
+	SELECT i.item_tipo, i.item_sucursal, i.item_numero, c.comp_producto, SUM(i.item_cantidad * i.item_precio) AS precio
+	FROM Composicion C
+	INNER JOIN Item_Factura i
+	ON C.comp_componente = i.item_producto 
+	WHERE C.comp_cantidad = i.item_cantidad 
+	GROUP BY i.item_tipo, i.item_sucursal, i.item_numero, c.comp_producto
+	HAVING COUNT(*) = (select count(*) from Composicion c2 where c.comp_producto = c2.comp_producto )
+	ORDER BY i.item_tipo, i.item_sucursal, i.item_numero
+	
+	BEGIN TRANSACTION
+
+	OPEN c_composicion
+	FETCH NEXT FROM c_composicion INTO @tipo, @sucursal, @numero, @producto, @precio
+	WHILE (@@FETCH_STATUS = 0)
+	BEGIN
+
+
+		INSERT INTO #filasInsertar VALUES (@tipo, @sucursal, @numero, @producto, @precio)
+
+		INSERT INTO #filasBorrar 
+		SELECT i.item_tipo, i.item_sucursal, i.item_numero, c.comp_componente 
+		FROM Item_Factura i 
+		INNER JOIN Composicion c ON i.item_producto = c.comp_componente 
+		WHERE
+		i.item_tipo = @tipo AND
+		i.item_sucursal = @sucursal AND
+		i.item_numero = @numero AND
+		c.comp_producto = @producto
+
+		FETCH NEXT FROM c_composicion INTO @tipo, @sucursal, @numero, @producto, @precio
+	END
+	CLOSE c_composicion
+	DEALLOCATE c_composicion
+
+	COMMIT TRANSACTION
+
+	BEGIN TRANSACTION
+
+	INSERT INTO Item_Factura 
+	SELECT tipo, sucursal, numero, producto, 1, precio
+	FROM #filasInsertar
+	
+
+	DELETE FROM Item_Factura
+	WHERE CONCAT(item_tipo,item_sucursal,item_numero,item_producto) IN
+	(SELECT CONCAT(tipo,sucursal,numero,producto) FROM #filasBorrar)
+
+	COMMIT TRANSACTION
+
+
+END
+GO
 
 
 

@@ -41,6 +41,63 @@ GO
 
 
 
+
+-- =============== HECHO X EL PROFE ===================
+
+CREATE PROCEDURE pr_ejercicio11Tsql(@codigo NUMERIC(6,0)) AS 
+BEGIN
+
+
+-- crear 1 tablas temporal con los empleados a su cargo
+-- while mientras tenga datos de empleados a agregar
+-- inserto en la tabla validando no duplicar
+-- Finaliza el while
+-- retorno un count de la tabla temporal
+
+CREATE TABLE #empleadosCargo
+	(codigo NUMERIC(6,0))
+
+	DECLARE @nuevos INT
+
+	INSERT INTO #empleadosCargo (codigo)
+	SELECT empl_codigo FROM 
+	Empleado E WHERE empl_jefe = @codigo
+
+	SELECT @nuevos = COUNT(*) FROM #empleadosCargo
+
+	WHILE @nuevos > 0
+	BEGIN 
+
+		INSERT INTO #empleadosCargo (codigo)
+		SELECT empl_codigo FROM 
+		Empleado E WHERE empl_jefe IN (SELECT codigo FROM #empleadosCargo)
+		AND NOT EXISTS (SELECT 1 FROM #empleadosCargo T1 WHERE T1.codigo = E.empl_codigo)
+
+		SET @nuevos = @@rowcount
+
+	END
+
+	SELECT @nuevos = COUNT(*) FROM #empleadosCargo
+
+	Print @nuevos
+
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --PRUEBA
 
 -- Hago un lista para ver los empleados directos y veo que los unicos empleados 
