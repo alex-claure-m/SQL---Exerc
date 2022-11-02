@@ -26,11 +26,63 @@ SELECT p.prod_detalle as [detalle del producto]
 
 /*
 2)
-Es atributo clie_limite_credito, representa el monto máximo que puede venderse a un cliente
-en el mes en curso. Implementar el/los objetos necesarios para que no se permita realizar una venta si el
+EL atributo clie_limite_credito, representa el monto máximo que puede venderse a un cliente
+en el mes en curso. 
+Implementar el/los objetos necesarios para que no se permita realizar una venta si el
 monto total facturado en el mes supera el atributo clie_limite_credito. Considerar que esta restricción debe 
 cumplirse siempre y validar también que no se pueda hacer una factura de un mes anterior.
 */
+
+CREATE FUNCTION total_vendido_mes(@fact_cliente char(6))
+RETURNS DECIMAL(12,2)
+AS
+
+    BEGIN
+ 
+        RETURN (select sum(f.fact_total) from Factura f
+                where f.fact_cliente = @fact_cliente
+                and MONTH(CURRENT_TIMESTAMP) = MONTH(f.fact_fecha)
+                and YEAR(CURRENT_TIMESTAMP) = YEAR(f.fact_fecha))
+    END
+GO
+ 
+
+CREATE TRIGGER trig_realizarVenta ON Factura
+INSTEAD OF INSERT, UPDATE -- como dice 'para que no se permita REALIZAR' -> ES INSTEAD OF
+AS
+	BEGIN
+		IF(EXISTS(SELECT * FROM inserted i JOIN Cliente c
+					ON c.clie_codigo = i.fact_cliente
+					WHERE c.clie_limite_credito < i.fact_total + dbo.total_vendido_mes(i.fact_cliente)))
+					-- CONSULTO DE QUE SI EL CREDITO DEL CLIENTE ES < a la factura total que estoy tratando de insertar 
+						-- + el total que se vendio del mes de ESE CLIENTE
+			BEGIN  
+				 RAISERROR (15600,10,1, 'La venta no puede superar el limite de credito para el cliente');
+			     END
+		ELSE -- en otro caso si no es mayor , insertame a la TABLA FACTURA LOS VALORES!
+            BEGIN
+                   INSERT INTO Factura 
+							(fact_tipo,fact_sucursal,fact_numero,fact_fecha,fact_vendedor,fact_total,fact_total_impuestos,fact_cliente)
+                   SELECT fact_tipo,fact_sucursal,fact_numero,fact_fecha,fact_vendedor,fact_total,fact_total_impuestos,fact_cliente from inserted
+
+                END
+            END
+		END
+GO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

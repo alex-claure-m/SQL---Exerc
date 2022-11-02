@@ -36,6 +36,31 @@ SELECT YEAR(f.fact_fecha) as [año]
 Se sabe que en la actualidad dicha regla se cumple y que la base de datos es accedido por n aplicaciones de diferentes tipos y tecnologías.
 */
 
+CREATE TRIGGER tri_checkCombo ON Composicion 
+AFTER INSERT, UPDATE
+AS 
+	BEGIN
+	-- LE PREGUNTO EN SI_ EXISTE ALGUN insertado (composicion) en el que sea si joinea con la tabla COMPOSICION
+	-- sea el mismo producto? => creo que no es lo que pide 
+	-- LO QUE PIDE ES
+		-- EXISTE ALGUN VALOR INSERTADO de la tabla Composicion donde EXISTA AL MENOS 1 PRODUCTO COMPUESTO 
+		IF(EXISTS (SELECT 1 FROM inserted i
+				INNER JOIN Composicion c ON c.comp_producto = i.comp_producto 
+				WHERE i.comp_producto = c.comp_producto))
+		  BEGIN
+            RAISERROR('Las composiciones deben estar compuestas por productos simples', 1, 1)
+            ROLLBACK
+            RETURN
+    END
+    COMMIT TRANSACTION
+GO
+
+
+
+
+SELECT 1 FROM Composicion c INNER JOIN producto p on p.prod_codigo = c.comp_producto
+
+
 
 USE [GD2015C1]
 GO

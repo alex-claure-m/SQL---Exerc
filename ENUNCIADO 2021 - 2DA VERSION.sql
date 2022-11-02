@@ -110,6 +110,90 @@ Realizar un stored procedure que
 Se debe programar una transacción para que las 3 operaciones se realicen atómicamente, se asume que todos los parámetros recibidos están validados a excepción de la cantidad del producto en stock.
 Queda a criterio del alumno, que acciones tomar en caso de que no se cumpla la única validación o se produzca un error no previsto.
 */
+
+create procedure proc_registroNuevo (
+		@facturaTipo CHAR(1), 
+		@facturaSucursal CHAR(4),
+		@facturaNumero CHAR(8),
+		@fechaRegistro SMALLDATETIME,
+		@deposito CHAR(2),
+		@producto CHAR(8),
+		@precioProducto DECIMAL(12,2)
+	)
+
+AS
+	DECLARE @stock decimal(12,2)
+	SET @stock = (SELECT ISNULL((SELECT s.stoc_cantidad FROM STOCK s WHERE s.stoc_producto =@producto AND s.stoc_deposito = @deposito),0)
+	-- seteo la cantidad de stock del producto 
+	IF @stock < 1
+		BEGIN
+			RAISERROR('no hay stock del producto en el deposito',1,1)
+			rollback
+			RETURN
+		ELSE
+			BEGIN
+				SET @precioProducto = (SELECT p.prod_precio FROM Producto p WHERE p.prod_codigo = @producto)
+				BEGIN TRANSACTION
+
+				UPDATE dbo.STOCK
+
+				SET stoc_cantidad = stoc_cantidad - 1
+				WHERE stoc_producto = @producto AND stoc_deposito = @deposito;
+
+
+				INSERT INTO dbo.Factura 
+				(
+					fact_tipo,
+					fact_sucursal,
+					fact_numero,
+					fact_fecha,
+					fact_total,
+					fact_total_impuestos
+				)
+				VALUES
+				(
+					@facturaTipo,
+					@facturaSucursal,
+					@facturaNumero,
+					@fechaRegistro,
+					@precioProducto,
+					ROUND(@precioProducto * 0.21, 2)
+				);
+				INSERT INTO dbo.Item_Factura
+				(
+					item_tipo,
+					item_sucursal,
+					item_numero,
+					item_producto,
+					item_cantidad,
+					item_precio
+				)
+				VALUES
+				(
+					@facturaTipo,
+					@facturaSucursal,
+					@facturaNumero,
+					@producto,
+					1,
+					@precioProducto
+				);
+				ROLLBACK 
+			END
+		END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 DROP PROCEDURE dbo.ComprarUnProducto;
 CREATE PROCEDURE dbo.ComprarUnProducto 
 	@fact_tipo char(1), 
@@ -216,3 +300,53 @@ EXEC dbo.ComprarUnProducto
 	@depo_codigo = '00'
 
 SELECT S.stoc_cantidad FROM STOCK S WHERE S.stoc_producto = '00000030' AND S.stoc_deposito = '00'
+
+
+/* ================================= version 2 =========================== */
+
+
+create procedure sp_parcial2021(@tipo char(1),@sucursal char(4),@numero char(8), @producto char(8), @deposito char(2), @precio decimal(12,2), @cantidad decimal(12,2))
+as
+begin
+	declare @stock as decimal(12,2)
+	declare @fecha as smalldatetime
+	set @fecha = GETDATE()
+	select @stock = isnull(stoc_cantidad,0) from STOCK where stoc_deposito = @deposito and stoc_producto = @producto
+
+	if @stock > @cantidad
+	begin
+		begin transaction
+		begin try
+			insert into Factura(fact_tipo, fact_sucursal,fact_numero,fact_fecha,fact_total,fact_total_impuestos) 
+			values (@tipo,@sucursal,@numero,@fecha,coalesce(@precio*@cantidad,0),round(coalesce(@precio*21/100,0),2))
+
+			insert into Item_Factura(item_tipo, item_sucursal, item_numero, item_producto, item_precio, item_cantidad) 
+			values (@tipo,@sucursal,@numero,@producto,coalesce(@precio,0),@cantidad)
+
+			update Stock set stoc_cantidad = @stock - @cantidad where stoc_deposito = @deposito and stoc_producto = @producto
+		end try
+		begin catch
+			rollback transaction;
+			throw 50001,'Error: No se ha podido realizar la operación',1
+		end catch
+	end
+	else 
+	begin
+		throw 50002,'Error: No hay Stock disponible para el producto elegido',1
+	end
+	commit transaction;
+end
+
+drop procedure sp_parcial2021
+
+execute sp_parcial2021 
+@tipo = 'T', @sucursal = '9999', @numero ='00000001', @producto = '00000849',  @deposito ='00', @precio = 2, @cantidad = 4
+
+select * from factura where fact_tipo = 'T'
+select * from Item_Factura where item_tipo = 'T'
+select * from stock where stoc_producto = '00000849' and stoc_deposito = '00'
+
+update Stock set stoc_cantidad = 20 where stoc_producto = '00000849' and stoc_deposito = '00'
+
+delete from Item_Factura where item_tipo = 'T'
+delete from Factura where fact_tipo = 'T'

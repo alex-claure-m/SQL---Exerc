@@ -1,6 +1,6 @@
 USE [GD2015C1]
 GO
-
+-- el ejerciocio de trigger no se entiende!
 
 /*
 ENUNCIADO 2018
@@ -14,8 +14,6 @@ EL resultado debe ser ordenado por cantidad total vendida
 Nota: no se permite el uso de sub-selects en el FROM ni funciones definidas por el usuario
 Aclaracion: se realiza con la base de práctica de la cátedra, en lugar de 2018 se puede usar otro año para testearla
 
-2) implementar el/los objetos necesarios para mantener siempre actualizado al instante ante cualquier evento el campo fact_total de la tabla Factura
-Nota: se sabe que actualmente el campo fact_total presenta esta propiedad
 
 */
 
@@ -40,7 +38,7 @@ SELECT p.prod_codigo as [codigo de producto]
 	 INNER JOIN Factura f ON f.fact_numero+f.fact_sucursal+f.fact_tipo = ifac.item_numero+ifac.item_sucursal+ifac.item_tipo
 
 
-
+/*
 SELECT p.prod_codigo, p.prod_detalle as 'nombre',
 
 ISNULL((SELECT COUNT(c.comp_producto) FROM [GD2015C1].[dbo].Composicion c WHERE c.comp_producto = p.prod_codigo),0) as 'Cantidad componentes',
@@ -68,8 +66,47 @@ where YEAR(f.fact_fecha) = 2018)
 GROUP BY p.prod_codigo, p.prod_detalle
 order by 5 desc
 
+*/
 
 
+
+
+/*
+2) implementar el/los objetos necesarios para mantener siempre actualizado al instante ante 
+cualquier evento el campo fact_total de la tabla Factura
+Nota: se sabe que actualmente el campo fact_total presenta esta propiedad
+
+-- objeto NECESARIO para mantener actualziado ante cualquier evento que le hacemos a la factura
+ --> en este caso si hay u nevento modificara la factura_total
+*/
+
+-- JODIDO!, NO LO ENTIENDO!!!!
+
+CREATE TRIGGER tri_facturaTotal on Item_factura
+AFTER INSERT, UPDATE
+AS 
+	BEGIN
+		DECLARE @numeroFactura decimal(12,2)
+		DECLARE @importe_factura decimal(12,2)
+DECLARE unCursor cursor FOR select (Item_Factura.item_cantidad * Item_Factura.item_precio),Item_Factura.item_numero 
+	FROM inserted 
+	GROUP BY Item_Factura.item_numero
+UNION SELECT (-1* (Item_Factura.item_cantidad * Item_Factura.item_precio)),ITEM_NUMERO FROM deleted 
+	GROUP BY Item_Factura.item_numero
+	OPEN unCursor
+FETCH NEXT unCursor into @numeroFactura,@importe_factura	
+WHILE @@FETCH_STATUS = 0
+	BEGIN
+		UPDATE FACTURA
+		SET fact_total=fact_total+@importe_factura
+		WHERE
+			fact_numero = @numeroFactura and fact_tipo = Item_Factura.item_tipo and fact_sucursal = Item_Factura.item_sucursal
+	FETCH NEXT unCursor INTO @numeroFactura, @importe_factura
+END
+CLOSE unCursor
+deallocate unCursor
+
+commit
 
 
 
@@ -94,7 +131,7 @@ BEGIN
 UPDATE FACTURA
 SET FACT_TOTAL=FACT_TOTAL+@importe
 WHERE
-FACT_NUMERO=@fact (aca faltaba preguntar por los otros PK que eran tipo y sucursal[/offtopic])
+FACT_NUMERO=@fact -- (aca faltaba preguntar por los otros PK que eran tipo y sucursal[/offtopic])
 FETCH NEXT mi_cursor into @importe,@fact
 END
 CLOSE mi_cursor

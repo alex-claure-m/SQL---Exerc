@@ -44,16 +44,52 @@ SELECT e.empl_codigo as [codigo de empleado]
 negocio "Ninguna factura puede contener mAs de 12 Items".
 La regla en la actualidad se cumple. No se conoce la forma de acceso a los datos ni el procedimiento por el
 cual se emiten las mismas.
+
+-- crear objeto para que cumpla : NINGUNA FACTURA DEBE CONTENER MAS DE 12 ITEMS
+
 */
 /*PARA CADA ITEM INSERTADO, HAY QUE VERIFICAR QUE SU FACTURA NO CONTIENE MAS DE 12 ITEMS*/
-
-
-
-
+IF EXISTS(SELECT name FROM sys.objects WHERE name='trig_facturaNegocio12Items')
+DROP TRIGGER trig_facturaNegocio12Items
 GO
+
+
+CREATE TRIGGER trig_facturaNegocio12Items ON Item_factura
+AFTER INSERT, UPDATE
+AS
+	BEGIN -- pregunto que si existe alguna tabla en el que TUVO ITEMS INSERTADOS con los mismos DATOS de la tabla Item_factura..
+		IF EXISTS(SELECT * FROM Item_Factura ifac 
+					JOIN inserted ins ON
+					ifac.item_numero = ins.item_numero
+					AND ifac.item_sucursal = ins.item_sucursal
+					AND ifac.item_tipo = ins.item_tipo
+				GROUP BY  ifac.item_sucursal,ifac.item_tipo,ifac.item_numero
+				HAVING COUNT (DISTINCT ifac.item_producto)>12 -- y que al ser insertados, fueron hecho 12 veces del mismo producto
+						)
+				BEGIN
+					RAISERROR('ESTE PRODUCTO TIENE 12 ITEMS ',1,1)
+					ROLLBACK
+					RETURN
+				END
+		END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 IF EXISTS(SELECT name FROM sysobjects WHERE name='trigger_12_items_factura')
 DROP TRIGGER trigger_12_items_factura
 GO
+
 CREATE TRIGGER trigger_12_items_factura ON Item_Factura FOR INSERT, UPDATE
 AS
 BEGIN

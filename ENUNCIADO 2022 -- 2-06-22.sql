@@ -54,3 +54,17 @@ CREE EL/LOS OBJETOS NECESARIOS PARA IMPLEMENTAR EL CONCEPTO DE FK ENTRE 2 CLIENT
 
 NOTA: NO SE PERMITE AGREGAR UNA CONSTRAINT DE TIPO FK ENTRE LA TABLA Y EL CAMPO AGREGADO
 */
+
+
+CREATE TABLE provincia(
+	id INT primary key identity,
+	nombre CHAR(100)
+	)
+
+
+create table cliente_add(
+	pcia_id INT
+	)
+alter table cliente
+Add FOREIGN KEY (pcia_id) REFERENCES provincia.id
+
