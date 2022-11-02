@@ -7,7 +7,9 @@ SQL es SQL que val del ejercicio 1 - 35 (creo - a actualizar)
 T-SQL es Transaction SQL 
 -- hasta el ejercicio 16
 
+https://github.com/Danymmereles/GDD-2022
 
+https://github.com/alexclaureM/Exercices-sql/tree/master
 ---------------------------------------------------------------------------------------
 
 SQL
