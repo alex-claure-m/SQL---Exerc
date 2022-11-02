@@ -1,0 +1,1 @@
+CREATE TRIGGER tr_ejercicio17ON stockAFTER INSERT, UPDATEASBEGIN IF EXISTS (			SELECT 1 FROM inserted 			WHERE not (stoc_cantidad BETWEEN stoc_punto_reposicion AND stoc_stock_maximo )			AND stoc_cantidad IS NOT NULL 			AND stoc_punto_reposicion IS NOT NULL			AND stoc_stock_maximo IS NOT NULL)			BEGIN				ROLLBACK TRANSACTION				RETURN			ENDEND
