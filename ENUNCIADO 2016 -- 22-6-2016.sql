@@ -5,6 +5,7 @@ GO
 SQL
 1-Desarrolle una consulta que muestre para cada empleado que no tenga gente a cargo el indice de productividad
 periodo x periodo (periodo x periodo implica periodo mensual A�OMES).
+
 Dicho indice es el porcentaje respecto a la cantidad de facturas que vendio ese vendedor en el periodo respecto
 al periodo en el que mas facturas vendio (en el periodo en que mas facturas vendio es %100).
   I.  Codigo de empleado
