@@ -6,7 +6,8 @@ GO
 
 Desarrolle el/los elementos de base de datos necesarios para que no se permita que la composición
 de los productos sea recursiva, o sea, que si el producto A compone al producto B,
-dicho producto B no pueda ser compuesto por el producto A, hoy la regla se cumple.
+dicho producto B no pueda ser compuesto por el producto A, hoy la regla se cumple.
+
 
 -- ESTE TAMBIEN PINTA RECONTRA FALOPA PERO VEREMOS
 

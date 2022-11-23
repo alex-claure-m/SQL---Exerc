@@ -13,9 +13,12 @@ https://github.com/alexclaureM/Exercices-sql/tree/master
 ---------------------------------------------------------------------------------------
 
 SQL
+
+
 9)
 Mostrar el código del jefe, código del empleado que lo tiene como jefe, nombre del
 mismo y la cantidad de depósitos que ambos tienen asignados.
+
  ======== lo interesante es el calculo de depositos segun jefe y empleado, por seaprado ===========
 
 
@@ -155,3 +158,94 @@ El resultado deberá ser ordenado por el total vendido por año en forma descend
 ===================== ACA LO INTERESANTE ES SOBRE EL CALCULO DEL PRODUCTO COMPUESTO + VENDIDO PARA ESE AÑO========
 
 
+
+TSQL
+
+-- DEL EJERCICIO 1-9 SON FUNCIONES Y PROCEDURES -- EL 11 ES PROCEDURE / FUNCION 
+
+10)  TRIGGERS
+
+Crear el/los objetos de base de datos que ante el intento de borrar un artículo 
+verifique que no exista stock y si es así lo borre en caso contrario que emita un 
+mensaje de error.
+	=========== ANTE EL INTETO DE BORRAR UN ARTICULO, SE USO "INSTEAD OF DELETE"  ====================
+
+
+12)
+Cree el/los objetos de base de datos necesarios para que nunca un producto 
+pueda ser compuesto por sí mismo. Se sabe que en la actualidad dicha regla se 
+cumple y que la base de datos es accedida por n aplicaciones de diferentes tipos 
+y tecnologías. No se conoce la cantidad de niveles de composición existentes.
+
+		===== LO INTERESANTE ES QUE DEBO FIJARME EN QUE UN PRODUCTO NO SE COMPONGA A SI MISMO ====
+
+14)
+Agregar el/los objetos necesarios para que si un cliente compra un producto 
+compuesto a un precio menor que la suma de los precios de sus componentes 
+que imprima la fecha, que cliente, que productos y a qué precio se realizó la 
+compra. No se deberá permitir que dicho precio sea menor a la mitad de la suma 
+de los componentes.
+
+====== ACA ESTOY REALIZANDO UNA FUNCION QUE CALCULE EL PRECIO COMPUESTO
+== UNA VEZ HECHO, DEBO IMPRIMIR FECHA,CLIENTE,PRODUCTOS QUE COMPRO + EL PRECIO
+
+
+16)
+
+Desarrolle el/los elementos de base de datos necesarios para que ante una venta automaticamante se descuenten del stock 
+los articulos vendidos. Se descontaran del deposito que mas producto poseea y se supone que el stock se almacena 
+tanto de productos simples como compuestos (si se acaba el stock de los compuestos no se arman combos)
+En caso que no alcance el stock de un deposito se descontara del siguiente y asi hasta agotar los depositos posibles.
+En ultima instancia se dejara stock negativo en el ultimo deposito que se desconto
+	======	ANTE UNA VENTA DEBO DESCONTAR EL STOCK DE LOS ARTICULOS QUE FUERON VENDIDOS ============
+	======== PROCESO DONDE DESCONTARE EL DEPOSITO DONDE + PRODUCTOS HAYAN ================
+	======== CURIOSO POR QUE DEBO CHEQUEAR QUE EXISTA PRODUCTOS COMPUESTOS POR QUE SI NO , NO FUNCA BIEN
+
+17)
+Sabiendo que el punto de reposicion del stock es la menor cantidad de ese objeto que se debe almacenar en el deposito 
+y que el stock maximo es la maxima cantidad de ese producto en ese deposito, cree el/los objetos de base de datos 
+necesarios para que dicha regla de negocio se cumpla automaticamente. 
+No se conoce la forma de acceso a los datos ni el procedimiento por el cual se incrementa o descuenta stock
+
+	======== punto de reposicion --> asi se llama un valor dentro de STOCK
+	=====  debo controlar que productos maximos y minimos en el deposito no sean superados 
+
+18)
+Sabiendo que el limite de credito de un cliente es el monto maximo que se le puede facturar mensualmente, 
+cree el/los objetos de base de datos necesarios para que dicha regla de negocio se cumpla automaticamente.
+ No se conoce la forma de acceso a los datos ni el procedimiento por el cual se emiten las facturas
+
+	====== limite de credito de un cliente no debe se rsuperado MENSUALMENTE
+	==== LO INTERESANTE ES QUE SE FACTURA MENSUALMENTE Y NO POR MES ESPECIFICO, ASI QUE TENE EN CUENTA COMO TRAIGO LOS AÑOS Y MES A ANALIZAR
+
+20)
+
+Crear el/los objeto/s necesarios para mantener actualizadas las comisiones del vendedor.
+El cálculo de la comisión está dado por el 5% de la venta total efectuada por ese vendedor en ese mes,
+más un 3% adicional en caso de que ese vendedor haya vendido por lo menos 50 productos distintos en el mes
+
+======= debo actualizar las comisiones del vendedor
+=====	lo clave en este caso como obtener el 5% + 3% si logro objetivos
+
+
+21)
+Desarrolle el/los elementos de base de datos necesarios para que se cumpla automaticamente la regla
+de que en una factura no puede contener productos de diferentes familias. 
+En caso de que esto ocurra no debe grabarse esa factura y debe emitirse un error en pantalla
+
+	=== la clave en este caso es diferenciar que para una familia dada, no deben haber mas de 2 productos
+	=== A OBSERVAR : COMO OBTUVE EL TEMA DE LA FAMILIA!
+
+22)
+Desarrolle el/los elementos de base de datos necesarios para que ante una venta automaticamante 
+se controle que en una misma factura no puedan venderse más de dos productos con composición.
+Si esto ocurre debera rechazarse la factura.
+	== CLAVE , CONTAR LOS PRODUCTOS Y TRATAR DE QUE ESE PRODUCTO NO ESTE EN LA TABLA COMPOSCION
+
+25)
+Desarrolle el/los elementos de base de datos necesarios para que no se permita que la composición
+de los productos sea recursiva, o sea, que si el producto A compone al producto B,
+dicho producto B no pueda ser compuesto por el producto A, hoy la regla se cumple.
+
+
+	== CLAVE PARA PODER DIFERENCIAR DE PRODUCTO A Y B 
