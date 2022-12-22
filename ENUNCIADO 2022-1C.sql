@@ -29,7 +29,14 @@ SELECT p.prod_codigo as [Codigo de producto], p.prod_detalle as [nombre del prod
 	--, (SELECT COUNT( *) FROM  Item_Factura ifac2	-- esta parte ne da una inseguridad de que esta MUY MAL
 	--	INNER JOIN Producto p2 ON ifac2.item_producto = p2.prod_codigo 
 	--	INNER JOIN Composicion c on c.comp_componente = p2.prod_codigo ) as [productos que lo componene]
-	-- , COMO CARAJO HAGO LA CANTIDAD DE PRODUCTOS EN LO QUE SE COMPONE A SU VEZ SEA LO QUE SE VENDIERON? 
+	  , (SELECT COUNT(distinct f2.fact_numero+f2.fact_sucursal+f2.fact_tipo) FROM Factura f2
+		INNER JOIN Item_Factura ifac2 ON ifac2.item_sucursal+ifac2.item_numero+ifac2.item_tipo =f2.fact_sucursal+f2.fact_numero+f2.fact_tipo
+		INNER JOIN Producto p2 ON p2.prod_codigo = ifac2.item_producto
+		WHERE p2.prod_codigo in (SELECT c1.comp_componente FROM Composicion c1)) as [ cantidad facturas de productos compuestos]
+	  , (SELECT COUNT(ifac3.item_producto) FROM Item_Factura ifac3
+			INNER JOIN Producto p3 ON p3.prod_codigo = ifac3.item_producto
+			INNER JOIN Factura f3 ON ifac3.item_sucursal+ifac3.item_numero+ifac3.item_tipo =f3.fact_sucursal+f3.fact_numero+f3.fact_tipo
+			WHERE p3.prod_codigo IN (SELECT c3.comp_producto FROM Composicion c3) as [CANTIDAD PRODUCTOS VENDIDOS COMPUESTOS]
 	 FROM Producto p
 	 INNER JOIN Item_Factura ifac ON p.prod_codigo = ifac.item_producto
 	 INNER JOIN Factura f ON ifac.item_sucursal+ifac.item_tipo+ifac.item_numero = f.fact_sucursal+f.fact_tipo+f.fact_numero

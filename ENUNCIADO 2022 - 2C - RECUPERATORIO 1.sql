@@ -24,7 +24,8 @@ SELECT c.clie_codigo as [codigo del cliente]
 		(SELECT TOP 1 (p1.prod_detalle) FROM Producto p1
 			INNER JOIN Item_Factura ifac4 ON ifac4.item_producto = p1.prod_codigo
 			INNER JOIN Factura f4 ON ifac4.item_numero+ifac4.item_sucursal+ifac4.item_tipo = f4.fact_numero+f4.fact_sucursal+f4.fact_tipo
-			WHERE YEAR(f4.fact_fecha) = '2012' AND f4.fact_cliente = c.clie_codigo) as [NOMBRE DEL PRODUCTO]
+			WHERE YEAR(f4.fact_fecha) = '2012' AND f4.fact_cliente = c.clie_codigo
+			ORDER BY 1 DESC) as [NOMBRE DEL PRODUCTO]
 			-- si no tuviese que insertarle la fecha del 2012, el JOIN de factura no iba
 	, (SELECT COUNT(DISTINCT ifac2.item_producto) FROM Item_Factura ifac2
 		INNER JOIN Factura f2 ON f2.fact_numero+f2.fact_sucursal+f2.fact_tipo = ifac2.item_numero+ifac2.item_sucursal+ifac2.item_tipo
